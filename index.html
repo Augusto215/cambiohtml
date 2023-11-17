@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste API</title>
+</head>
+<body>
+    USD Spot (Investing): <span id="usd"></span><br><br>
+    COINBASE: <span id="coinbase"></span><br><br>
+    Montante: <input type="number" id="montante" value="1"><br><br>
+    USDT Preço: <span id="resultado"></span>
+
+    <script>
+        let usdValue;
+        let coinbaseValue;
+        
+        async function fetchData() {
+            try {
+                const response = await fetch('http://34.68.120.204:8443/scrape');
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar dados: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                usdValue = parseFloat(data.usd_value);
+                document.querySelector('#usd').textContent = usdValue;
+
+                coinbaseValue = parseFloat(data.coinbase);
+                document.querySelector('#coinbase').textContent = coinbaseValue;
+
+                calcular();
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        function calcular() {
+            const montante = parseFloat(document.getElementById('montante').value);
+            const resultado = usdValue * montante * coinbaseValue;
+            document.getElementById('resultado').textContent = resultado.toFixed(2);  // Arredonda para 2 casas decimais
+        }
+
+        // Chama a função fetchData a cada 1000 milissegundos (1 segundo)
+        setInterval(fetchData, 1000);
+
+        // Adiciona um ouvinte de evento para o evento input no campo de entrada montante
+        document.getElementById('montante').addEventListener('input', calcular);
+    </script>
+
+</body>
+</html>
